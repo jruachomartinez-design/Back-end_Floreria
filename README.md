@@ -4467,3 +4467,972 @@ Panel de administración
 Se sustituyen por valores calculados a partir de la base de datos.
 
 Las definiciones de este apartado constituyen la referencia de contenido para la implementación de las interfaces. Cualquier cambio en el diseño visual que agregue, elimine o modifique contenido deberá reflejarse en esta sección para conservar la trazabilidad con los requerimientos del sistema.
+
+===
+
+
+## Maquetado y prototipado
+
+https://www.figma.com/board/wPO6xFMzauPOJ4q1MtaO5A/boceto-de-floreria?node-id=0-1&t=KskfCtBQ6RtTKnxb-1&desktop-link-click-timestamp=1792744022748&desktop-ul-exp-bucket=po
+
+## Justificación técnica de la elección del sistema de control de versiones y plataforma de colaboración: Git y GitHub
+
+### 1. Contexto y necesidades del proyecto
+
+Para el desarrollo de la plataforma web de comercio electrónico de la florería Zantedeschia, se ha seleccionado **Git como sistema de control de versiones distribuido y GitHub como plataforma de alojamiento, colaboración y administración del código fuente**. Esta decisión responde a las características técnicas del sistema, la organización del equipo de desarrollo, la metodología de trabajo seleccionada y las restricciones identificadas durante la planificación del proyecto.
+
+La solución propuesta contempla la transformación de una página web principalmente informativa en una aplicación de comercio electrónico que permita consultar productos, administrar cuentas de usuario, gestionar carritos de compra, registrar pedidos y realizar transacciones mediante una pasarela de pago en un entorno de pruebas. Adicionalmente, incorporará un panel administrativo para gestionar productos y consultar los pedidos registrados.
+
+Desde el punto de vista tecnológico, el sistema utilizará una arquitectura organizada en capas, con Vue.js para la interfaz de usuario, NestJS y TypeScript para la lógica de aplicación, PostgreSQL como sistema gestor de bases de datos y TypeORM para administrar la persistencia de información. Esta separación implica que el desarrollo estará distribuido entre diferentes módulos y componentes que, aunque poseen responsabilidades particulares, deberán integrarse correctamente para garantizar el funcionamiento de los procesos principales.
+
+Por ejemplo, la implementación del proceso de compra requerirá coordinar componentes de la interfaz desarrollados en Vue.js, endpoints del backend implementados mediante NestJS, entidades y operaciones de persistencia gestionadas con TypeORM y, cuando corresponda, servicios externos relacionados con el procesamiento de pagos.
+
+Debido a estas dependencias, el proyecto necesita un mecanismo que permita administrar las modificaciones realizadas sobre los distintos componentes, conservar versiones funcionales, identificar el origen de posibles errores y coordinar el trabajo simultáneo de los integrantes sin comprometer innecesariamente la estabilidad del código compartido.
+
+A estas necesidades se suma que el proyecto será desarrollado por un equipo de cuatro integrantes, utilizando Scrum como marco de trabajo ágil y organizando las actividades en Sprints de aproximadamente una semana. El periodo académico disponible exige que las funcionalidades puedan implementarse, revisarse e integrarse de manera incremental, priorizando aquellas necesarias para completar el Producto Mínimo Viable (MVP).
+
+En consecuencia, la elección de las herramientas de control de versiones no se fundamenta únicamente en su popularidad, sino en su capacidad para atender necesidades concretas de colaboración, trazabilidad, integración, mantenibilidad y administración del desarrollo.
+
+### 2. Justificación de Git como sistema de control de versiones
+
+#### 2.1. Control histórico y trazabilidad de las modificaciones
+
+Git permite registrar y administrar diferentes estados del código fuente a lo largo del desarrollo mediante unidades de cambio denominadas *commits*. Cada commit identifica un estado del contenido versionado y conserva información relacionada con la modificación, como su autor, fecha, descripción y relación con otros commits.
+
+Esta característica resulta especialmente importante para Zantedeschia debido a la cantidad de funcionalidades relacionadas entre sí y a la necesidad de realizar modificaciones continuas conforme se implementen y validen los requerimientos del sistema.
+
+Durante el desarrollo, una modificación realizada en un módulo puede ocasionar comportamientos inesperados en otros componentes. Por ejemplo, un cambio en la estructura de los datos asociados a un pedido podría afectar las operaciones de persistencia del backend y la información presentada posteriormente en el panel administrativo.
+
+Mediante el historial de Git, los desarrolladores podrán comparar versiones del código, identificar los archivos modificados y examinar las diferencias introducidas por una implementación determinada. Esto facilitará investigar cuándo se incorporó un cambio y determinar si se encuentra relacionado con un defecto detectado.
+
+Asimismo, Git permite recuperar contenido de versiones anteriores y revertir modificaciones específicas cuando sea necesario. Esta capacidad proporciona un mecanismo de recuperación del código fuente ante errores introducidos durante el desarrollo, disminuyendo el riesgo de perder implementaciones previamente funcionales.
+
+Es importante precisar que estas operaciones no sustituyen las pruebas del sistema ni los respaldos de la base de datos. La recuperación de una versión anterior del código no garantiza, por sí misma, la reversión de modificaciones realizadas sobre información persistente o servicios externos.
+
+Por tanto, el historial de Git se considera una herramienta de trazabilidad y recuperación del código que contribuye a la mantenibilidad del proyecto y al diagnóstico de problemas durante las distintas etapas de implementación.
+
+#### 2.2. Desarrollo paralelo mediante ramas independientes
+
+Una de las principales razones técnicas para utilizar Git es su capacidad para administrar diferentes líneas de desarrollo mediante ramas o *branches*.
+
+Esta característica permitirá que los integrantes del equipo trabajen en funcionalidades distintas sin incorporar inmediatamente sus modificaciones a la versión compartida del sistema.
+
+Su utilidad es particularmente relevante porque el proyecto contempla múltiples áreas funcionales, entre ellas autenticación, administración de usuarios, catálogo de productos, carrito de compras, pedidos y administración del sistema.
+
+Por ejemplo, mientras un integrante implementa los endpoints correspondientes al registro e inicio de sesión, otro puede trabajar en los componentes visuales del catálogo y un tercero desarrollar las operaciones relacionadas con los productos en el backend. Cada actividad podrá realizarse en una rama independiente, conservando una referencia común del proyecto.
+
+La separación mediante ramas reduce la necesidad de incorporar cambios incompletos a la línea principal de desarrollo y permite verificar el funcionamiento de una implementación antes de integrarla.
+
+Además, el modelo de ramas de Git es ligero y facilita la creación de líneas temporales de trabajo, lo que resulta apropiado para tareas relativamente pequeñas como las planteadas en los Sprints semanales.
+
+No obstante, utilizar ramas independientes no elimina automáticamente los conflictos de integración. Cuando diferentes integrantes modifican las mismas secciones de un archivo, pueden producirse conflictos que deberán ser revisados y resueltos manualmente. Git proporciona herramientas para identificar y gestionar estas situaciones, pero la resolución correcta requiere comprender el comportamiento esperado de los componentes involucrados.
+
+Por esta razón, el uso de ramas será complementado con comunicación entre los desarrolladores y revisiones previas a la integración de modificaciones relevantes.
+
+#### 2.3. Modelo distribuido y autonomía del equipo
+
+Git utiliza un modelo de control de versiones distribuido, en el cual cada integrante puede disponer de una copia local del repositorio y de su historial.
+
+Esta característica permite realizar modificaciones, generar commits, consultar versiones anteriores y administrar ramas sin mantener una conexión permanente con el servidor remoto.
+
+Para Zantedeschia, esta capacidad proporciona autonomía a los integrantes, quienes podrán desarrollar y registrar avances desde sus respectivos entornos de trabajo. La disponibilidad del servicio remoto no será un requisito para cada operación local de versionado.
+
+Posteriormente, cuando exista conectividad, las modificaciones podrán compartirse mediante el repositorio remoto y coordinarse con el trabajo desarrollado por los demás participantes.
+
+El modelo distribuido también reduce la dependencia de una única copia central del historial, ya que los repositorios locales contienen información versionada que puede contribuir a recuperar el proyecto ante determinadas fallas del repositorio remoto.
+
+Sin embargo, esta característica no elimina la necesidad de mantener respaldos adicionales ni garantiza que todos los integrantes posean inmediatamente las modificaciones más recientes. La sincronización entre repositorios deberá realizarse como parte de las prácticas de colaboración del equipo.
+
+#### 2.4. Compatibilidad con la arquitectura y tecnologías seleccionadas
+
+Git es independiente de los lenguajes de programación, frameworks y herramientas utilizados para construir la aplicación, por lo que puede integrarse con el conjunto tecnológico definido para Zantedeschia sin imponer cambios sobre su arquitectura.
+
+Mediante el repositorio podrán versionarse archivos de TypeScript, componentes de Vue.js, configuraciones de NestJS, definiciones de entidades de TypeORM, migraciones de base de datos, pruebas automatizadas y documentación técnica.
+
+Esta compatibilidad resulta importante porque el proyecto contempla modificaciones tanto en los componentes de presentación como en la lógica de negocio y la capa de persistencia.
+
+En particular, el versionado de migraciones de TypeORM permitirá conservar un historial de los cambios definidos para la estructura de la base de datos, facilitando que los integrantes conozcan qué modificaciones deben aplicar en sus respectivos entornos. Las migraciones deberán ejecutarse y validarse mediante los procedimientos correspondientes; Git únicamente administrará los archivos que contienen sus definiciones.
+
+De esta manera, Git ofrece un mecanismo común para administrar los distintos artefactos de desarrollo, sin introducir dependencias respecto de un framework o lenguaje específico.
+
+#### 2.5. Contribución a la mantenibilidad del sistema
+
+El proyecto establece mediante el requerimiento **RNF-MANT-01** que el código fuente deberá conservar una organización modular, separando responsabilidades como usuarios, productos, pedidos, autenticación y administración.
+
+Aunque Git no garantiza por sí mismo una arquitectura modular, facilita administrar los cambios realizados sobre los componentes y revisar si una implementación modifica innecesariamente módulos que no deberían encontrarse relacionados.
+
+Asimismo, permite mantener un historial de las decisiones reflejadas en el código y facilita la investigación de defectos introducidos durante su evolución.
+
+Esta capacidad será relevante tanto para realizar correcciones durante el periodo académico como para conservar una base de código comprensible que pueda modificarse posteriormente.
+
+Por lo tanto, Git contribuye al cumplimiento de los objetivos de mantenibilidad al proporcionar trazabilidad, comparación de versiones y mecanismos controlados de integración de modificaciones.
+
+### 3. Justificación de GitHub como plataforma de colaboración
+
+#### 3.1. Centralización y disponibilidad del repositorio compartido
+
+Aunque Git permite administrar versiones localmente, el trabajo colaborativo requiere establecer un medio común para compartir modificaciones y coordinar su integración.
+
+Para satisfacer esta necesidad, se utilizará GitHub como plataforma de alojamiento remoto del repositorio.
+
+GitHub proporcionará un punto de referencia compartido desde el cual los integrantes podrán obtener el código actualizado, publicar sus modificaciones y consultar las contribuciones incorporadas durante el desarrollo.
+
+Esta centralización resulta especialmente conveniente para un equipo pequeño que necesita mantener una visión común del estado del proyecto sin asumir la responsabilidad de instalar, configurar y administrar infraestructura propia destinada al alojamiento de repositorios Git.
+
+La utilización de GitHub también permitirá mantener una copia remota del código versionado, reduciendo el riesgo de pérdida de trabajo ante fallas de un equipo local. Sin embargo, dicho repositorio no reemplazará los respaldos necesarios para la información persistente de PostgreSQL ni constituirá, por sí solo, una estrategia completa de recuperación ante desastres.
+
+La plataforma remota funcionará como un medio de colaboración y conservación del código fuente, complementando las capacidades locales de Git.
+
+#### 3.2. Revisión de código mediante Pull Requests
+
+Una de las principales ventajas de GitHub para el proyecto es la posibilidad de administrar la incorporación de modificaciones mediante *Pull Requests*.
+
+Un Pull Request permite presentar los cambios realizados en una rama, compararlos con la rama de destino y someterlos a revisión antes de integrarlos.
+
+Este mecanismo es importante debido a que los componentes del sistema mantienen dependencias funcionales. Una implementación puede encontrarse terminada desde la perspectiva de un desarrollador, pero ocasionar problemas al interactuar con otros módulos.
+
+Por ejemplo, antes de incorporar una modificación relacionada con la autenticación de usuarios, otro integrante podrá revisar que los cambios mantengan las validaciones correspondientes, respeten los permisos establecidos y sean compatibles con las operaciones que requieren una sesión autenticada.
+
+De manera similar, un Pull Request relacionado con el carrito de compras podrá revisarse para comprobar que las modificaciones correspondan al requerimiento implementado y no alteren innecesariamente otras funcionalidades.
+
+La revisión también permitirá identificar errores de lógica, modificaciones accidentales, código incompleto y posibles inconsistencias con las convenciones técnicas acordadas por el equipo.
+
+Este procedimiento se relaciona directamente con el criterio general de terminado definido para el proyecto, el cual establece que una funcionalidad deberá satisfacer sus requerimientos, superar las verificaciones correspondientes y encontrarse correctamente integrada antes de considerarse completada.
+
+Dado el tamaño del equipo, se propone que los cambios relevantes sean revisados, cuando resulte viable, por al menos un integrante distinto de su autor antes de integrarse a la rama principal.
+
+Es importante señalar que la revisión mediante Pull Requests no garantiza la ausencia de defectos. Su propósito es introducir un punto de control adicional que complemente las pruebas y reduzca el riesgo de integrar modificaciones sin verificar.
+
+#### 3.3. Seguimiento de actividades y trazabilidad mediante Issues
+
+GitHub incorpora un sistema de seguimiento de actividades denominado *Issues*, mediante el cual pueden registrarse funcionalidades pendientes, errores identificados, tareas técnicas y mejoras necesarias.
+
+Esta herramienta resulta apropiada para Zantedeschia porque el proyecto cuenta con requerimientos funcionales y no funcionales identificados individualmente, así como con actividades derivadas de dichos requerimientos.
+
+La utilización de Issues permitirá asociar el trabajo de implementación con las necesidades previamente documentadas.
+
+Por ejemplo, el requerimiento **RF-USER-10**, relacionado con la realización de compras, podrá vincularse con una o varias actividades técnicas necesarias para implementar el flujo correspondiente. Estas actividades podrán registrar su descripción, responsable, prioridad y condiciones necesarias para considerarlas terminadas.
+
+Cuando una actividad implique modificaciones en el código, será posible relacionar el Issue con la rama o Pull Request utilizado para realizar la implementación.
+
+Esto permitirá establecer una secuencia de trazabilidad entre el requerimiento que originó una actividad, el trabajo asignado, las modificaciones efectuadas y su posterior integración.
+
+La trazabilidad es especialmente importante en un proyecto académico porque proporciona evidencia verificable del avance realizado y facilita comprobar que las implementaciones corresponden con el alcance previamente establecido.
+
+De esta manera, GitHub no funcionará exclusivamente como un repositorio de código, sino como un medio para relacionar el desarrollo técnico con la planificación y los requerimientos del sistema.
+
+#### 3.4. Integración con Scrum mediante GitHub Projects
+
+El equipo ha seleccionado Scrum como marco de trabajo para organizar el desarrollo de manera incremental, utilizando Sprints de aproximadamente una semana.
+
+La aplicación de este marco requiere administrar un Product Backlog, seleccionar actividades para cada Sprint, dar seguimiento al trabajo en progreso y revisar periódicamente los incrementos desarrollados.
+
+Para apoyar estas actividades se utilizará GitHub Projects, cuya integración con Issues y Pull Requests permitirá concentrar la planificación y el seguimiento del trabajo dentro del mismo entorno utilizado para la colaboración técnica.
+
+Se propone organizar las actividades mediante estados como **Pendiente, En progreso, En revisión y Terminada**, permitiendo identificar su situación durante cada iteración.
+
+Asimismo, podrán utilizarse campos para registrar responsables, prioridades, estimaciones de esfuerzo mediante Story Points y la iteración correspondiente.
+
+La relación entre GitHub Projects y el repositorio facilitará conocer no solamente cuáles actividades se encuentran pendientes, sino también cuáles cuentan con modificaciones en desarrollo, cuáles están siendo revisadas y cuáles han sido integradas.
+
+Esta información será útil durante la planificación de los Sprints, las revisiones del incremento y las actividades de coordinación del equipo.
+
+Por ejemplo, durante la revisión de un Sprint será posible consultar las actividades comprometidas, examinar los Pull Requests relacionados y verificar si los elementos considerados terminados cuentan con los resultados de implementación y validación correspondientes.
+
+La integración entre administración del trabajo y desarrollo reduce la necesidad de mantener información duplicada en múltiples plataformas. Esto representa una ventaja para un equipo de cuatro integrantes, especialmente considerando que el tiempo disponible deberá concentrarse principalmente en diseñar, implementar y validar el MVP.
+
+No obstante, GitHub Projects será utilizado como una herramienta de apoyo; el cumplimiento de Scrum dependerá de las prácticas de planificación, inspección, adaptación y colaboración que realice el equipo, no de la plataforma por sí misma.
+
+### 4. Integración con las prácticas de calidad y verificación
+
+El proyecto establece mediante el requerimiento **RNF-MANT-03** que las funcionalidades críticas deberán contar con pruebas automatizadas capaces de detectar regresiones después de realizar modificaciones.
+
+Entre estas funcionalidades se incluyen autenticación, carrito de compras, proceso de compra y administración de productos.
+
+La combinación de Git y GitHub favorecerá la aplicación de este requerimiento al permitir relacionar las modificaciones realizadas con sus respectivas pruebas y revisar sus resultados antes de incorporar los cambios a la versión compartida.
+
+Como procedimiento de trabajo, se propone que las funcionalidades desarrolladas sean verificadas localmente antes de presentar un Pull Request. Esta verificación podrá incluir la ejecución de pruebas automatizadas, la comprobación de compilación y las pruebas manuales necesarias según la naturaleza del cambio.
+
+En el caso del backend, Postman permitirá comprobar el comportamiento de los endpoints implementados, incluyendo solicitudes válidas, entradas incorrectas y restricciones de autorización. Los resultados relevantes podrán documentarse como evidencia de la revisión, aunque las pruebas manuales con Postman no sustituyen las pruebas automatizadas requeridas.
+
+Adicionalmente, GitHub ofrece la posibilidad de implementar procesos de integración continua mediante GitHub Actions. Esta herramienta puede ejecutar flujos de trabajo ante eventos del repositorio, como la apertura o actualización de un Pull Request.
+
+En caso de incorporarse durante el desarrollo, podría utilizarse para automatizar la instalación de dependencias, la compilación del proyecto y la ejecución de pruebas.
+
+Su utilización contribuiría a detectar errores antes de integrar modificaciones y proporcionaría resultados verificables asociados a las propuestas de cambio.
+
+Sin embargo, la automatización mediante GitHub Actions se considera una capacidad complementaria y no una condición indispensable para justificar la elección de GitHub. Su implementación deberá ajustarse al tiempo disponible y a las necesidades del equipo.
+
+El beneficio principal radica en que la plataforma permite incorporar progresivamente controles de calidad sin necesidad de cambiar de sistema de control de versiones ni trasladar el código a otro servicio.
+
+### 5. Seguridad y administración del código fuente
+
+La aplicación contempla funcionalidades relacionadas con autenticación, administración de usuarios, pedidos e integración con servicios externos, incluyendo una pasarela de pago utilizada en modo de pruebas.
+
+Por esta razón, resulta necesario mantener una separación clara entre el código fuente y la información sensible utilizada para configurar los distintos entornos.
+
+El requerimiento **RNF-MANT-02** establece que las credenciales, contraseñas, claves secretas y demás parámetros dependientes del entorno no deberán encontrarse escritos directamente en el código versionado.
+
+Para respetar esta condición, se utilizarán mecanismos como archivos de configuración externa y reglas de exclusión mediante .gitignore, evitando incorporar archivos locales con credenciales, secretos de servicios y otra información sensible al repositorio.
+
+Cuando sea necesario documentar las variables requeridas para ejecutar la aplicación, podrán utilizarse archivos de ejemplo que contengan únicamente los nombres de las variables y valores no sensibles.
+
+Es importante reconocer que .gitignore evita la incorporación accidental de archivos no rastreados que coincidan con las reglas establecidas, pero no elimina información que ya haya sido registrada anteriormente en el historial de Git. Por tanto, la revisión de los cambios antes de generar commits y Pull Requests será una práctica necesaria.
+
+GitHub también permitirá administrar el acceso de los colaboradores al repositorio. Dado que el proyecto será desarrollado por cuatro integrantes identificados, los permisos podrán asignarse conforme a las responsabilidades necesarias para consultar, modificar y administrar el código.
+
+Asimismo, el equipo deberá evaluar la visibilidad del repositorio y mantener un control adecuado sobre las personas autorizadas para acceder a su contenido.
+
+Estas medidas contribuirán a la protección de los recursos de desarrollo y disminuirán el riesgo de modificaciones no autorizadas o divulgación accidental de información sensible.
+
+Conviene precisar que GitHub no sustituye los mecanismos de seguridad que deberán implementarse dentro de la aplicación. La validación de entradas, protección de contraseñas, control de acceso por roles y expiración de sesiones continuarán siendo responsabilidades del sistema desarrollado.
+
+### 6. Adecuación a las restricciones de tiempo, presupuesto y experiencia
+
+La selección de Git y GitHub también responde a las limitaciones identificadas durante el análisis de viabilidad del proyecto.
+
+El documento establece que el equipo está integrado por cuatro personas y que el desarrollo se realizará dentro de un periodo académico limitado. Asimismo, reconoce que la incorporación de tecnologías desconocidas puede ocasionar retrasos asociados con el aprendizaje y la adaptación de nuevas herramientas.
+
+En este contexto, resulta significativo que los integrantes cuenten con experiencia previa utilizando Git, repositorios remotos, ramas, commits y mecanismos básicos de resolución de conflictos.
+
+Aprovechar estos conocimientos permitirá reducir el esfuerzo inicial de capacitación y concentrar una mayor proporción del tiempo disponible en las funcionalidades principales de la plataforma.
+
+Desde la perspectiva económica, Git es software libre y puede utilizarse sin costos de licenciamiento. Por su parte, GitHub ofrece modalidades gratuitas que permiten alojar repositorios y colaborar en proyectos, aunque determinadas funcionalidades avanzadas, límites de uso y controles de administración pueden variar según el plan contratado y la visibilidad del repositorio.
+
+Para el alcance académico planteado, las capacidades básicas de alojamiento, colaboración, seguimiento de actividades y revisión de cambios ofrecen una solución adecuada sin requerir inicialmente infraestructura propia de control de versiones.
+
+Esto resulta consistente con la restricción presupuestaria del proyecto, que establece la prioridad de utilizar herramientas gratuitas o recursos que permitan demostrar el funcionamiento del prototipo sin generar gastos innecesarios.
+
+Adicionalmente, el análisis de riesgos identifica situaciones como la pérdida de recursos, los cambios imprevistos, los errores de documentación y los problemas de seguimiento del desarrollo.
+
+El uso conjunto de Git y GitHub puede contribuir a reducir las consecuencias de algunos de estos riesgos, al conservar un historial de modificaciones, facilitar la recuperación de código y proporcionar mecanismos para documentar y supervisar actividades.
+
+Sin embargo, estas herramientas no eliminan los riesgos por sí mismas. Su efectividad dependerá de que el equipo mantenga prácticas adecuadas de versionado, comunicación, revisión y sincronización de cambios.
+
+### 7. Evaluación frente a otras alternativas
+
+La elección de Git y GitHub también puede justificarse al considerar otras soluciones disponibles para el control de versiones y la colaboración.
+
+Entre las alternativas de control de versiones se encuentra Subversion (SVN), que utiliza principalmente un modelo centralizado. Este enfoque puede resultar adecuado para determinados procesos de desarrollo, pero para Zantedeschia se considera más conveniente el modelo distribuido de Git, ya que cada integrante podrá administrar su historial local y trabajar mediante ramas sin depender continuamente del servidor remoto.
+
+El modelo de ramas de Git también resulta apropiado para las actividades de desarrollo incremental, debido a la facilidad con la que permite crear, actualizar e integrar líneas de trabajo independientes.
+
+Respecto a las plataformas de alojamiento, existen alternativas como GitLab y Bitbucket, que también ofrecen administración de repositorios Git, colaboración y herramientas para organizar procesos de desarrollo.
+
+Estas plataformas podrían satisfacer gran parte de los requerimientos identificados y no se consideran técnicamente inadecuadas para el proyecto.
+
+Sin embargo, **la selección de GitHub se fundamenta en su correspondencia con las necesidades actuales del equipo**, particularmente en la experiencia previa de los integrantes y la posibilidad de utilizar conjuntamente repositorios, Pull Requests, Issues y GitHub Projects.
+
+GitLab, por ejemplo, dispone de capacidades de colaboración e integración continua que podrían resultar apropiadas en otros contextos. No obstante, para el alcance y tamaño del proyecto no se ha identificado un requerimiento que obligue a adoptar sus herramientas específicas en lugar de las capacidades disponibles en GitHub.
+
+Del mismo modo, la utilización de una solución de alojamiento autogestionada implicaría asumir responsabilidades adicionales relacionadas con infraestructura, configuración, disponibilidad, actualizaciones y mantenimiento del servicio. Estas actividades no aportan un beneficio proporcional a los objetivos principales del prototipo y podrían consumir recursos necesarios para el desarrollo funcional.
+
+Por lo tanto, la elección de GitHub no implica afirmar que se trate de una plataforma universalmente superior a sus alternativas. Se considera la opción más adecuada para Zantedeschia por su capacidad para cubrir las necesidades identificadas sin introducir complejidad administrativa o una curva de aprendizaje adicional que no resulte necesaria.
+
+### 8. Estrategia propuesta para la administración de versiones
+
+Para aprovechar las capacidades de Git y GitHub de manera consistente, se propone establecer un flujo de colaboración basado en ramas de funcionalidad y revisiones mediante Pull Requests.
+
+La rama main se utilizará como referencia de la versión compartida y previamente revisada del proyecto. Las funcionalidades nuevas, correcciones y modificaciones relevantes se desarrollarán inicialmente en ramas independientes creadas a partir de una base actualizada.
+
+Por ejemplo, una actividad relacionada con autenticación podrá desarrollarse en una rama denominada feature/autenticacion, mientras que los componentes relacionados con el carrito de compras podrán implementarse en feature/carrito.
+
+Los commits deberán representar modificaciones relacionadas entre sí y contar con mensajes descriptivos que permitan comprender el propósito del cambio. Esto facilitará la consulta del historial y el diagnóstico posterior de errores.
+
+Una vez desarrollada y verificada una funcionalidad, el responsable podrá presentar un Pull Request para su revisión. La descripción deberá explicar qué requerimiento o actividad atiende, cuáles fueron los principales cambios realizados y qué verificaciones se ejecutaron.
+
+Cuando corresponda, el Pull Request se relacionará con el Issue de GitHub que representa el trabajo realizado.
+
+Antes de integrar los cambios, se revisará su compatibilidad con los módulos existentes, el cumplimiento de los criterios de aceptación y la ausencia de errores conocidos que impidan completar los flujos prioritarios.
+
+Después de la integración, el equipo deberá verificar que la versión compartida conserve el comportamiento esperado.
+
+La aplicación de este procedimiento permitirá establecer una relación directa entre las actividades planeadas, las implementaciones realizadas y las versiones del sistema disponibles para su validación.
+
+Al concluir un incremento relevante o una versión destinada a demostración, podrán utilizarse etiquetas de Git (*tags*) para identificar el estado exacto del código correspondiente. Esto facilitará reproducir una versión del prototipo y distinguirla de modificaciones posteriores.
+
+Por las características del proyecto, se considera suficiente mantener una estrategia de ramas relativamente sencilla, evitando introducir un modelo complejo de administración de versiones que genere trabajo adicional innecesario para un equipo reducido.
+
+### 9. Relación con los requerimientos y objetivos del proyecto
+
+La elección de Git y GitHub presenta una relación directa con diferentes necesidades identificadas durante la planificación de Zantedeschia.
+
+| Necesidad del proyecto | Contribución de Git y GitHub |
+| --- | --- |
+| Desarrollo colaborativo de cuatro integrantes | Ramas independientes, repositorio compartido y mecanismos de integración de modificaciones. |
+| Implementación modular del frontend y backend | Administración de cambios sobre componentes separados y revisión de modificaciones entre módulos. |
+| RNF-MANT-01: Código organizado y modular | Trazabilidad y revisión de cambios para apoyar la conservación de la estructura definida. |
+| RNF-MANT-02: Configuración externa | Exclusión de archivos sensibles del versionado y revisión de cambios antes de publicarlos. |
+| RNF-MANT-03: Pruebas automatizadas | Versionado de pruebas y posibilidad de ejecutar verificaciones automatizadas asociadas a Pull Requests. |
+| Scrum y desarrollo incremental | Integración con Issues y GitHub Projects para administrar el Product Backlog y los Sprints. |
+| Validación de requerimientos funcionales | Vinculación entre requerimientos, actividades, modificaciones y evidencias de revisión. |
+| Restricciones de tiempo y presupuesto | Aprovechamiento de conocimientos existentes y herramientas gratuitas suficientes para las necesidades iniciales. |
+| Riesgo de pérdida de código y errores de implementación | Conservación del historial, repositorios locales y copia remota para facilitar la recuperación e investigación de cambios. |
+| Presentación y validación del MVP | Identificación de versiones demostrables mediante commits y etiquetas de Git. |
+
+Esta correspondencia permite comprobar que la selección tecnológica no constituye una decisión aislada, sino que se encuentra alineada con los objetivos del producto, sus atributos de calidad y la organización establecida para su desarrollo.
+
+### 10. Conclusión de la elección tecnológica
+
+Con base en las características técnicas y organizativas de Zantedeschia, se concluye que **Git y GitHub constituyen una combinación adecuada para administrar el control de versiones y la colaboración durante el desarrollo del proyecto**.
+
+Git satisface las necesidades relacionadas con el registro histórico de modificaciones, la recuperación de versiones del código, el desarrollo paralelo mediante ramas y la autonomía de los integrantes a través de su modelo distribuido.
+
+Por su parte, GitHub complementa estas capacidades al proporcionar un repositorio remoto compartido y herramientas para revisar modificaciones, registrar actividades y relacionar el trabajo técnico con los requerimientos y la planificación del proyecto.
+
+La combinación resulta especialmente conveniente debido a la arquitectura modular de la aplicación, la necesidad de integrar funcionalidades desarrolladas por diferentes integrantes y la adopción de Scrum como marco de trabajo incremental.
+
+Además, su utilización es consistente con las restricciones del periodo académico y el presupuesto disponible, ya que permite aprovechar la experiencia previa del equipo y utilizar herramientas suficientes para organizar el desarrollo sin requerir infraestructura adicional de administración de repositorios.
+
+La incorporación de Pull Requests, Issues y GitHub Projects contribuirá a establecer un proceso de desarrollo más organizado y verificable, facilitando la identificación de responsabilidades, la revisión de cambios y el seguimiento de las actividades necesarias para completar el Producto Mínimo Viable.
+
+Por último, es importante reconocer que las herramientas seleccionadas no garantizan por sí mismas la calidad, seguridad o cumplimiento de los requerimientos. Estos resultados dependerán de la correcta aplicación de las prácticas de desarrollo, pruebas, documentación y revisión acordadas por el equipo.
+
+En consecuencia, **la decisión de utilizar Git y GitHub se considera técnicamente justificada por su correspondencia con las necesidades de versionado, colaboración, trazabilidad, integración y mantenibilidad del proyecto**, además de su viabilidad operativa y económica dentro de las condiciones establecidas para Zantedeschia.
+
+## Definición y diseño del flujo de trabajo (Workflow)
+
+El diseño del flujo de trabajo (workflow) para el desarrollo de la plataforma web Zantedeschia establece los procedimientos técnicos y organizativos que el equipo de cuatro integrantes seguirá para planificar, codificar, revisar e integrar el software. Este modelo se fundamenta en las capacidades de Git y GitHub, adaptándose al marco de trabajo de Scrum con Sprints de una semana, la arquitectura dividida en frontend ([Vue.js](http://vue.js)) y backend (Nest/TypeORM), los requerimientos funcionales y no funcionales del sistema.
+
+El objetivo de este flujo es garantizar la estabilidad de la rama principal, prevenir conflictos de integración entre capas arquitectónicas, asegurar el cumplimiento de métricas de calidad y mantener la trazabilidad absoluta desde la concepción de un requerimiento hasta su despliegue en el Producto Mínimo Viable (MVP).
+
+### 1. Gestión de Tareas y Planificación del Sprint
+
+El ciclo de trabajo comienza en GitHub Projects, herramienta que funcionará como el tablero unificado para el seguimiento del Product Backlog y el Sprint Backlog. Para mantener la trazabilidad con la documentación del proyecto, cada requerimiento funcional (ej. RF-USER-10) o no funcional (ej. RNF-MANT-03) se traducirá en uno o múltiples GitHub Issues. Cada Issue deberá contener:
+
+- **Descripción técnica:** Especificación clara de lo que se debe construir (ej. creación de entidad TypeORM, desarrollo de endpoint, maquetado de vista).
+
+- **Criterios de aceptación:** Condiciones técnicas y de negocio que la tarea debe cumplir para considerarse terminada.
+
+- **Etiquetas (Labels):** Categorización del trabajo (frontend, backend, bug, enhancement, database).
+
+- **Asignación:** Identificación del desarrollador responsable (o desarrolladores, en caso de programación en pares).
+
+Durante las sesiones de Sprint Planning, el equipo moverá los Issues seleccionados a la columna "En progreso" (In Progress) del tablero, detonando el inicio del trabajo técnico.
+
+### 2. Estrategia de Ramas (Branching Model)
+
+Para equilibrar la agilidad requerida por Sprints cortos y la estabilidad del código, se implementará un modelo de ramas basado en GitHub Flow, evitando la sobrecarga de flujos complejos como GitFlow convencional, pero manteniendo el aislamiento del desarrollo.
+
+- **Rama main (Principal):** Es la única rama persistente. Contiene código funcional, revisado y estable. Su estado refleja siempre la última versión demostrable del sistema. Nadie en el equipo realizará commits directos sobre esta rama; su actualización ocurre exclusivamente mediante Pull Requests aprobados.
+
+- **Ramas de Funcionalidad (feature/\*):** Creadas a partir de main. Concentran el desarrollo de nuevas características. La nomenclatura debe ser descriptiva y referenciar el componente, por ejemplo: feature/auth-login, feature/catalogo-vue, feature/typeorm-productos.
+
+- **Ramas de Corrección (fix/\*):** Creadas para resolver errores identificados durante las pruebas locales o revisiones. Ejemplo: fix/calculo-carrito, fix/migracion-usuarios.
+
+Esta estructura garantiza que, si el desarrollo de la pasarela de pagos se retrasa, no bloqueará la integración del catálogo de productos, ya que ambos residen en líneas de vida independientes.
+
+### 3. Convenciones de Desarrollo y Commits
+
+Un historial de Git ilegible dificulta la reversión de errores y la revisión de código. Por ello, el equipo adoptará la convención de "Semantic Commits" (Commits Semánticos) para mantener un registro histórico estructurado.
+
+Cada mensaje de commit debe reflejar claramente su impacto:
+
+- `feat(carrito): agrega cálculo dinámico de impuestos`
+
+- `fix(auth): resuelve expiración prematura del token JWT`
+
+- `refactor(db): optimiza consultas a PostgreSQL en el catálogo`
+
+- `test(pedidos): añade pruebas unitarias para validación de stock`
+
+Los desarrolladores realizarán commits frecuentes y atómicos en sus entornos locales. Un commit debe representar un cambio lógico completo, facilitando la identificación de exactamente cuándo y dónde se introdujo una modificación en la capa de NestJS o un componente de Vue.
+
+### 4. Revisión de Código e Integración (Pull Requests)
+
+Una vez que el desarrollador completa la tarea en su rama local y verifica su funcionamiento básico, subirá la rama al repositorio remoto y abrirá un Pull Request (PR) hacia main. Este es el punto crítico de control de calidad del workflow.
+
+El PR no es solo un mecanismo de fusión, sino una auditoría técnica obligatoria. El proceso establece las siguientes reglas:
+
+- **Trazabilidad:** El PR debe vincularse al Issue correspondiente (ej. Closes #12) para automatizar el seguimiento en GitHub Projects.
+
+- **Contexto:** El creador debe proporcionar una breve descripción de los cambios (ej. dependencias añadidas, tablas modificadas).
+
+- **Revisión de Pares:** Siguiendo las directrices del proyecto, se requerirá al menos una aprobación (Approval) de otro miembro del equipo antes de permitir la integración. El revisor evaluará la lógica de negocio, la arquitectura modular (RNF-MANT-01) y la ausencia de malas prácticas.
+
+- **Resolución de Conflictos:** Si el PR presenta conflictos con main (ej. dos desarrolladores modificaron el mismo controlador de NestJS), el autor de la rama es responsable de actualizar su base local (git rebase o git merge main) y resolver el conflicto antes de la revisión final.
+
+### 5. Controles de Calidad y Seguridad (Shift-Left Security)
+
+El workflow integra verificaciones técnicas previas a la fusión para cumplir con los requerimientos no funcionales de seguridad y mantenimiento.
+
+- **Auditoría de Credenciales (RNF-MANT-02):** Antes de crear el PR, el desarrollador debe asegurar que ningún secreto (cadenas de conexión a PostgreSQL, claves JWT, API keys de la pasarela de pagos) esté codificado en duro (hardcoded). El archivo .gitignore debe bloquear estrictamente la subida de los archivos .env. Si el revisor detecta una credencial en el PR, este será rechazado inmediatamente.
+
+- **Verificación de Pruebas (RNF-MANT-03):** Para módulos críticos (pagos, autenticación, carrito), el PR debe incluir la evidencia de las pruebas correspondientes. En el backend, esto implica adjuntar resultados de ejecución de los endpoints críticos en Postman o la ejecución de pruebas automatizadas locales que garanticen que la nueva lógica no rompe las funcionalidades existentes (regresiones).
+
+### 6. Liberación de Incrementos y Versionado (Releases)
+
+Al finalizar el Sprint, la rama main contendrá un nuevo conjunto de funcionalidades integradas. Para consolidar el incremento del Producto Mínimo Viable, se utilizará el sistema de etiquetas (Tags) de Git.
+
+El líder técnico o Scrum Master asignado generará una etiqueta semántica (ej. v0.1.0-alpha o v1.0.0-mvp) para marcar ese punto exacto en el historial. Esto permite al equipo descargar y compilar una versión demostrable garantizada para las sesiones de Sprint Review con los interesados, aislando la demostración de cualquier código inestable o en desarrollo de la siguiente iteración.
+
+## Diagramas
+
+Mer: (aquí pondré la ruta)
+
+Diagramas de casos de uso y secuencia: (aquí pondré la ruta)
+
+## Diccionario de datos - Florería Zantedeschia
+
+### Introducción
+
+Este diccionario describe las 9 tablas de la base de datos del proyecto Zantedeschia, tomadas del MER: cada campo con su tipo, llaves, restricciones y propósito.
+
+#### Convenciones
+
+| Abreviatura | Significado |
+| --- | --- |
+| PK | Llave primaria (Primary Key) |
+| FK | Llave foránea (Foreign Key) |
+| UQ | Valor único en la tabla |
+| NN | No nulo (NOT NULL) |
+| AI | Autoincremental |
+
+Los tipos de dato están en SQL estándar (compatibles con MySQL y PostgreSQL). Todas las llaves primarias son enteros autoincrementales llamados `id`.
+
+### Resumen de tablas
+
+| Tabla | Módulo | Descripción |
+| --- | --- | --- |
+| Roles | Usuarios | Catálogo de roles del sistema (Administrador, Cliente). |
+| Usuarios | Usuarios | Personas registradas en el sistema y su rol. |
+| Direcciones | Usuarios | Domicilios de entrega. |
+| Clientes\_Direcciones | Usuarios | Tabla intermedia que asocia direcciones a usuarios con rol Cliente. |
+| Categorias | Catálogo | Clasificación de los productos. |
+| Productos | Catálogo | Arreglos y artículos que vende la florería. |
+| Productos\_Favoritos | Catálogo | Productos marcados como favoritos por un usuario. |
+| Pedidos | Pedidos | Encabezado de cada pedido: dirección, fecha y estado. |
+| Pedidos\_Productos | Pedidos | Detalle de los productos incluidos en cada pedido. |
+
+### Módulo de usuarios
+
+#### Roles
+
+Catálogo de los roles que puede tener un usuario. Valores esperados: `administrador` y `cliente`.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único del rol. |
+| `nombre` | `VARCHAR(30)` |  | NN, UQ | Nombre del rol ( `administrador` , `cliente` ). |
+
+#### Usuarios
+
+Personas registradas en el sistema, tanto administradores como clientes.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único del usuario. |
+| `rol_id` | `INT` | `FK → Roles.id` | NN | Rol asignado al usuario. |
+| `nombre` | `VARCHAR(50)` |  | NN | Nombre(s) del usuario. |
+| `apellido_pat` | `VARCHAR(50)` |  | NN | Apellido paterno. |
+| `apellido_mat` | `VARCHAR(50)` |  |  | Apellido materno; opcional. |
+| `email` | `VARCHAR(100)` |  | NN, UQ | Correo electrónico, usado para iniciar sesión. |
+| `telefono` | `VARCHAR(15)` |  |  | Número telefónico de contacto. |
+| `contraseña` | `VARCHAR(255)` |  | NN | Contraseña cifrada con hash (nunca en texto plano). |
+
+#### Direcciones
+
+Domicilios a los que se pueden entregar los pedidos.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único de la dirección. |
+| `calle` | `VARCHAR(100)` |  | NN | Nombre de la calle. |
+| `numero` | `VARCHAR(10)` |  | NN | Número exterior (texto para admitir valores como "123-B"). |
+| `colonia` | `VARCHAR(80)` |  | NN | Colonia. |
+| `ciudad` | `VARCHAR(60)` |  | NN | Ciudad. |
+
+#### Clientes\_Direcciones
+
+Tabla intermedia que relaciona usuarios con sus direcciones. Solo aplica a usuarios cuyo rol sea `cliente`; esta regla se valida en el back-end.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único de la asociación. |
+| `cliente_id` | `INT` | `FK → Usuarios.id` | NN | Usuario cliente dueño de la dirección. |
+| `direccion_id` | `INT` | `FK → Direcciones.id` | NN | Dirección asociada al cliente. |
+
+### Módulo de catálogo
+
+#### Categorias
+
+Clasificación de los productos (por ejemplo: ramos, coronas, arreglos de mesa).
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único de la categoría. |
+| `nombre` | `VARCHAR(50)` |  | NN, UQ | Nombre de la categoría. |
+| `descripcion` | `VARCHAR(255)` |  |  | Descripción breve de la categoría. |
+
+#### Productos
+
+Arreglos y artículos que ofrece la florería y que se muestran en el catálogo.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único del producto. |
+| `categoria_id` | `INT` | `FK → Categorias.id` | NN | Categoría a la que pertenece el producto. |
+| `nombre` | `VARCHAR(100)` |  | NN | Nombre comercial del producto. |
+| `descripcion` | `TEXT` |  |  | Descripción detallada que ve el cliente. |
+| `imagen` | `VARCHAR(255)` |  |  | Ruta o URL de la imagen del producto. |
+| `precio` | `DECIMAL(10,2)` |  | NN, ≥ 0 | Precio unitario actual del producto, en pesos mexicanos. |
+| `stock` | `INT` |  | NN, ≥ 0 | Unidades disponibles; 0 = no disponible. |
+| `activo` | `BOOLEAN` |  | NN, default TRUE | FALSE = producto eliminado lógicamente (soft delete, RF-ADMIN-07); no se muestra al Cliente. |
+
+#### Productos\_Favoritos
+
+Productos que un usuario guarda como favoritos.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único del registro. |
+| `usuario_id` | `INT` | `FK → Usuarios.id` | NN | Usuario que marcó el favorito. |
+| `producto_id` | `INT` | `FK → Productos.id` | NN | Producto marcado como favorito. |
+
+La pareja (usuario\_id, producto\_id) debe ser única para que un usuario no repita el mismo favorito.
+
+### Módulo de pedidos
+
+#### Pedidos
+
+Encabezado de cada pedido realizado por un cliente: a dónde se entrega, cuándo y en qué estado va.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único del pedido. |
+| `cliente_direccion_id` | `INT` | `FK → Clientes_Direcciones.id` | NN | Cliente y dirección de entrega del pedido. |
+| `dia` | `TINYINT` |  | NN, 1–31 | Día en que se realizó el pedido. |
+| `mes` | `TINYINT` |  | NN, 1–12 | Mes en que se realizó el pedido. |
+| `año` | `SMALLINT` |  | NN | Año en que se realizó el pedido. |
+| `estado` | `ENUM('apartado', 'pagado', 'atendido')` |  | NN, default 'apartado' | Situación actual del pedido (ver tabla de estados). |
+
+##### Valores de estado
+
+| Valor | Significado |
+| --- | --- |
+| apartado | El cliente reservó el producto sin pagar en la página (RF-CLIENTE-03). |
+| pagado | El pago se confirmó mediante la pasarela de pago (RF-CLIENTE-04). |
+| atendido | El personal de la florería ya entregó o cerró el pedido. |
+
+#### Pedidos\_Productos
+
+Detalle de un pedido: qué productos incluye y en qué cantidad.
+
+| Campo | Tipo | Llave | Restricciones | Descripción |
+| --- | --- | --- | --- | --- |
+| `id` | `INT` | `PK` | NN, AI | Identificador único del renglón. |
+| `pedido_id` | `INT` | `FK → Pedidos.id` | NN | Pedido al que pertenece el renglón. |
+| `producto_id` | `INT` | `FK → Productos.id` | NN | Producto incluido en el pedido. |
+| `cantidad_producto` | `INT` |  | NN, \> 0 | Unidades del producto en el pedido. |
+| `precio_total` | `DECIMAL(10,2)` |  | NN, ≥ 0 | Productos.precio × cantidad\_producto al momento de la compra; se guarda para que no cambie si después sube el precio. |
+
+### Relaciones
+
+Las 9 relaciones del MER, leídas de la tabla padre a la tabla hija que guarda la llave foránea.
+
+| Tabla padre | Tabla hija | Cardinalidad | Llave foránea |
+| --- | --- | --- | --- |
+| `Roles` | `Usuarios` | 1:N | `Usuarios.rol_id` |
+| `Usuarios` | `Clientes_Direcciones` | 1:N | `Clientes_Direcciones.cliente_id` |
+| `Direcciones` | `Clientes_Direcciones` | 1:N | `Clientes_Direcciones.direccion_id` |
+| `Clientes_Direcciones` | `Pedidos` | 1:N | `Pedidos.cliente_direccion_id` |
+| `Pedidos` | `Pedidos_Productos` | 1:N | `Pedidos_Productos.pedido_id` |
+| `Productos` | `Pedidos_Productos` | 1:N | `Pedidos_Productos.producto_id` |
+| `Categorias` | `Productos` | 1:N | `Productos.categoria_id` |
+| `Usuarios` | `Productos_Favoritos` | 1:N | `Productos_Favoritos.usuario_id` |
+| `Productos` | `Productos_Favoritos` | 1:N | `Productos_Favoritos.producto_id` |
+
+## Configuración y parámetros del entorno de versiones
+
+Proyecto Florería Zantedeschia · Equipo 1 · 7.º «B» · Formulación de Proyectos de Tecnología
+
+### 1. Propósito y alcance
+
+Este documento define cómo se configura el entorno de versiones del proyecto Florería Zantedeschia: las herramientas y versiones base, los parámetros del repositorio, la estrategia de ramas, el control de accesos, los archivos de exclusión, el manejo de variables de entorno y credenciales, y el procedimiento para levantar y validar el sistema desde cero.
+
+Se deriva de la Entrega final del proyecto y respeta sus decisiones: Scrum como marco de trabajo con Sprints de aproximadamente una semana, arquitectura cliente-servidor con API REST, y Git, GitHub y GitHub Projects como herramientas de control de versiones y administración del trabajo. Da cumplimiento directo a los siguientes requerimientos:
+
+- **RNF-MANT-02 — Configuración externa:** ninguna credencial, contraseña, clave secreta o parámetro dependiente del entorno puede estar escrito en el código fuente versionado.
+
+- **RNF-MANT-03 — Pruebas automatizadas:** las funcionalidades críticas (autenticación, carrito, compra y administración de productos) cuentan con pruebas que se ejecutan antes de integrar cambios.
+
+- **RNF-SEG-01 a RNF-SEG-04:** contraseñas protegidas, acceso restringido al panel administrativo, validación de entradas y expiración de sesiones.
+
+- **RNF-OPE-01 — Copias de respaldo:** los respaldos de la base de datos se tratan como información sensible y no se versionan.
+
+Aplica al repositorio del backend (NestJS, TypeScript, TypeORM y PostgreSQL) y sirve de referencia para el frontend (Vue.js y Vite).
+
+### 2. Entornos y versiones base
+
+Como el proyecto es un prototipo académico sin cliente real, se definen tres entornos, y en todos ellos Stripe opera únicamente en modo de prueba.
+
+| Entorno | Uso | Base de datos | Configuración |
+| --- | --- | --- | --- |
+| Desarrollo | Trabajo diario de cada integrante en su equipo | PostgreSQL local o en contenedor | `.env` local |
+| Pruebas | Verificación de integración y pruebas de aceptación al cierre de cada Sprint | PostgreSQL independiente, con datos de prueba | Variables propias de este entorno |
+| Despliegue | Prototipo accesible para evaluación | PostgreSQL del proveedor de alojamiento | Variables del servidor y GitHub Secrets |
+
+| Componente | Versión base |
+| --- | --- |
+| Sistema operativo (desarrollo) | Windows 10/11, o Linux (Ubuntu u otra distribución) |
+| Sistema operativo (pruebas y despliegue) | Linux (Ubuntu Server LTS) |
+| Node.js | v20.x LTS o superior |
+| TypeScript | v5.x |
+| Backend | NestJS v10.x con TypeORM |
+| Frontend | Vue.js v3.x (Composition API), Vue Router, Pinia y Vite |
+| Gestor de paquetes | npm v10.x, con `package-lock.json` versionado |
+| Base de datos | PostgreSQL v15.x o v16.x |
+| Pruebas de API | Postman |
+| Contenedores (opcional) | Docker Engine v24.x o superior y Docker Compose v2.x o superior, para levantar PostgreSQL de forma homogénea |
+
+Como alternativa técnica prevista en la Entrega final, si el despliegue de PostgreSQL presentara dificultades dentro del tiempo disponible, podría usarse MySQL. En ese caso habría que comprobar la compatibilidad de consultas, tipos y migraciones, pero la arquitectura no cambiaría.
+
+### 3. Parámetros iniciales del repositorio
+
+El repositorio central es `jruachomartinez-design/Back-end_Floreria`, con `main` como rama por defecto y el README como documentación principal del proyecto.
+
+| Parámetro | Valor |
+| --- | --- |
+| Plataforma | GitHub |
+| Repositorio | [jruachomartinez-design/Back-end\_Floreria](https://github.com/jruachomartinez-design/Back-end_Floreria) |
+| Propietario | Joan Ariel Ruacho Martinez |
+| Visibilidad | Pública |
+| Rama por defecto | `main` |
+| Rama de integración | `develop` |
+| Documentación | `README.md` en la raíz |
+| Tablero y cronograma | [GitHub Projects — Kanban y cronograma](https://github.com/users/jruachomartinez-design/projects/4/views/1) |
+| Estados del tablero | Pendiente, En progreso, En revisión, Terminada |
+| Codificación y fin de línea | UTF-8, LF |
+| Gestor de paquetes | npm |
+
+Cada integrante configura su identidad de Git antes del primer commit, usando el mismo correo asociado a su cuenta de GitHub para que los commits queden atribuidos correctamente:
+
+```bash
+git config --global user.name "Nombre Apellido"
+git config --global user.email "correo@ejemplo.com"
+git config --global init.defaultBranch main
+git config --global core.autocrlf input
+```
+
+Como el repositorio es público, cualquier archivo subido queda visible para todos. Por eso las reglas de las secciones 6 y 7 son obligatorias desde el primer commit de código.
+
+### 4. Estrategia de ramas y convención de commits
+
+Se sigue un GitFlow adaptado al tamaño del equipo. La integración se hace siempre por Pull Request: nadie hace commits directos a `main` ni a `develop`.
+
+| Rama | Propósito | Se crea desde | Se integra en |
+| --- | --- | --- | --- |
+| `main` | Versión estable que se despliega y se presenta al cierre de cada Sprint | — | — |
+| `develop` | Integración del trabajo terminado y revisado durante el Sprint | `main` | `main` |
+| `feature/<id>-<descripcion>` | Un requerimiento o tarea. Ejemplo: `feature/RF-ADMIN-06-eliminacion-logica` | `develop` | `develop` |
+| `fix/<descripcion>` | Corrección de un defecto encontrado en `develop` | `develop` | `develop` |
+| `hotfix/<descripcion>` | Corrección urgente sobre la versión estable | `main` | `main` y `develop` |
+| `docs/<descripcion>` | Cambios solo de documentación | `develop` | `develop` |
+
+El identificador del nombre de la rama corresponde al requerimiento del que se deriva la tarea, con el formato de la Entrega final, por ejemplo `RF-USER-01` para registro de clientes o `RF-ADMIN-04` para crear un producto.
+
+#### Flujo de trabajo de cada tarea
+
+1. Tomar el Issue asignado en GitHub Projects y moverlo a *En progreso*.
+
+2. Crear la rama desde `develop` actualizada, con el identificador del requerimiento en el nombre.
+
+3. Hacer commits pequeños siguiendo la convención de abajo.
+
+4. Abrir un Pull Request hacia `develop` que referencie el Issue (por ejemplo, `Closes #12`) y mover la tarjeta a *En revisión*.
+
+5. Otro integrante revisa y aprueba; se fusiona y la tarjeta pasa a *Terminada*.
+
+6. Al cierre del Sprint, `develop` se fusiona en `main` y se etiqueta la versión (`v0.1.0`, `v0.2.0`, …).
+
+**Convención de commits.** Se usa Conventional Commits, la misma forma que ya tiene el historial del repositorio:
+
+| Prefijo | Uso |
+| --- | --- |
+| `feat:` | Nueva funcionalidad |
+| `fix:` | Corrección de un error |
+| `docs:` | Documentación |
+| `refactor:` | Cambio interno sin alterar comportamiento |
+| `test:` | Pruebas automatizadas |
+| `chore:` | Configuración, dependencias y mantenimiento |
+
+Ejemplo: `feat(productos): agregar eliminación lógica de productos (RF-ADMIN-06)`.
+
+**Criterio para fusionar.** Un Pull Request solo se fusiona cuando el trabajo cumple el criterio general de terminado de la Entrega final: satisface el requerimiento y su criterio de verificación, compila sin errores, valida los datos del usuario, mantiene en verde las pruebas automatizadas, fue revisado por otro integrante, no deja defectos críticos conocidos y actualiza la documentación afectada.
+
+### 5. Control de accesos
+
+Cada integrante tiene solo el permiso que necesita su rol en Scrum, y las ramas principales están protegidas para que ningún cambio entre sin revisión.
+
+#### Permisos en el repositorio
+
+| Integrante | Rol en Scrum | Permiso en GitHub |
+| --- | --- | --- |
+| Joan Ariel Ruacho Martinez | Diseño UI y Developer | Propietario (Admin) |
+| Sergio Mauricio Ortiz Valdes | Scrum Master y líder técnico | Maintain |
+| Luis Gerardo Astorga Carranza | Product Owner y Developer | Write |
+| Yuridia Selene Reyes Cortinas | Diseño UX/UI y Developer | Write |
+| Docente (MCC. Jesús del Toro Robledo) | Evaluación | Read (el repositorio es público) |
+
+Admin puede cambiar la configuración, los accesos y las reglas de protección. Maintain administra Issues, Pull Requests y ramas sin tocar la configuración sensible. Write permite crear ramas, hacer push a ellas y abrir Pull Requests.
+
+#### Reglas de protección de ramas (Settings → Branches → Branch protection rules)
+
+| Regla | `main` | `develop` |
+| --- | --- | --- |
+| Requerir Pull Request antes de fusionar | Sí | Sí |
+| Aprobaciones mínimas | 1 | 1 |
+| Descartar aprobaciones si llegan commits nuevos | Sí | Sí |
+| Requerir conversaciones resueltas | Sí | Sí |
+| Requerir que compile y pasen las pruebas (cuando exista CI) | Sí | Sí |
+| Bloquear force push | Sí | Sí |
+| Bloquear eliminación de la rama | Sí | Sí |
+| Aplicar también a administradores | Sí | No |
+
+#### Acceso de cada integrante
+
+- Cada quien entra con su propia cuenta de GitHub; no se comparten cuentas ni contraseñas.
+
+- Todas las cuentas del equipo tienen activada la autenticación en dos pasos (2FA).
+
+- Para hacer push se usa SSH o un Personal Access Token *fine-grained* limitado a este repositorio, nunca la contraseña de la cuenta.
+
+- Cuando un integrante sale del proyecto, el propietario le retira el acceso y se rotan las llaves que conocía (sección 7).
+
+### 6. Archivos de exclusión (.gitignore)
+
+El `.gitignore` en la raíz evita que se versionen secretos, dependencias, compilados y datos locales. El único archivo de entorno que sí se sube es `.env.example`.
+
+| Categoría | Patrones | Motivo |
+| --- | --- | --- |
+| Variables de entorno y secretos | `.env`, `.env.*`, `*.pem`, `*.key`, `secrets/` | Contienen contraseñas y llaves (RNF-MANT-02) |
+| Dependencias | `node_modules/` | Se reinstalan con `npm ci` |
+| Compilados | `dist/`, `build/`, `*.tsbuildinfo` | Se generan a partir del código |
+| Pruebas | `coverage/` | Reportes que cambian en cada ejecución |
+| Logs | `logs/`, `*.log` | Pueden incluir datos de clientes |
+| Imágenes subidas en local | `uploads/` | Datos de prueba de productos |
+| Respaldos de base de datos | `backups/`, `*.dump`, `*.sql.gz` | Contienen datos de usuarios (RNF-OPE-01) |
+| Datos de contenedores | `pgdata/` | Volumen local de PostgreSQL |
+| Postman | `*.postman_environment.json` | Guardan tokens de sesión |
+| Editor y sistema operativo | `.idea/`, `.vscode/*`, `.DS_Store`, `Thumbs.db` | Archivos personales de cada equipo |
+
+Contenido del archivo:
+
+```gitignore
+# --- variables de entorno y secretos ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# --- dependencias ---
+node_modules/
+
+# --- compilado de nest / typescript ---
+dist/
+build/
+*.tsbuildinfo
+
+# --- pruebas ---
+coverage/
+
+# --- logs ---
+logs/
+*.log
+
+# --- imagenes de productos subidas en local ---
+uploads/
+!uploads/.gitkeep
+
+# --- respaldos de la base de datos ---
+backups/
+*.dump
+*.sql.gz
+
+# --- datos de postgres en docker ---
+pgdata/
+
+# --- postman: la coleccion si se sube, el environment trae tokens ---
+*.postman_environment.json
+
+# --- editores y sistema operativo ---
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+```
+
+Si un archivo ya se había subido antes de agregarlo al `.gitignore`, se deja de rastrear con `git rm --cached <archivo>` y se hace commit. Si ese archivo tenía una credencial, además se rota la credencial, porque sigue en el historial.
+
+### 7. Variables de entorno, llaves y credenciales
+
+Ninguna credencial se escribe en el código ni se sube al repositorio. En local viven en `.env`; en pruebas y despliegue, en las variables del servidor o en GitHub Secrets (RNF-MANT-02). El repositorio incluye únicamente `.env.example`, con los nombres de las variables y valores ilustrativos, para que cualquier integrante pueda levantar el proyecto copiándolo a `.env`.
+
+#### 7.1. Variables del backend
+
+| Variable | Qué controla | Ejemplo | Cambia por entorno |
+| --- | --- | --- | --- |
+| `NODE_ENV` | Modo de ejecución de Node.js | `development` / `production` | Sí |
+| `PORT` | Puerto de la API de NestJS | `3000` | No |
+| `APP_URL` | URL base donde se hospeda el backend | `http://localhost:3000` | Sí |
+| `FRONTEND_URL` | Origen permitido por CORS para la SPA de Vue | `http://localhost:5173` | Sí |
+| `DB_HOST` | Servidor de PostgreSQL | `localhost` | Sí |
+| `DB_PORT` | Puerto de PostgreSQL | `5432` | No |
+| `DB_USER` | Usuario de la base de datos | `floreria` | Sí |
+| `DB_PASSWORD` | Contraseña de la base de datos | `cambiar_esto` | Sí |
+| `DB_NAME` | Nombre de la base de datos | `floreria_dev` | Sí |
+| `DB_SYNCHRONIZE` | Sincronización automática de esquema de TypeORM; solo `true` en desarrollo, y en pruebas y despliegue se usan migraciones | `false` | Sí |
+| `JWT_SECRET` | Clave para firmar las sesiones | `pon_aqui_una_cadena_larga_y_aleatoria` | Sí |
+| `JWT_EXPIRES_IN` | Vigencia de la sesión (RNF-SEG-04) | `2h` | Opcional |
+| `STRIPE_SECRET_KEY` | Llave secreta de Stripe, solo de prueba (RF-USER-16) | `sk_test_xxxxxxxx` | Sí |
+| `STRIPE_WEBHOOK_SECRET` | Firma para validar webhooks de pago | `whsec_xxxxxxxx` | Sí |
+| `MAIL_HOST` | Servidor SMTP para correos de confirmación y restablecimiento | `smtp.ejemplo.com` | Sí |
+| `MAIL_PORT` | Puerto SMTP | `587` | No |
+| `MAIL_USER` | Usuario del servicio de correo | `usuario` | Sí |
+| `MAIL_PASSWORD` | Contraseña o token del servicio de correo | `cambiar_esto` | Sí |
+| `MAIL_FROM` | Remitente visible en los correos | `soporte@ejemplo.com` | Opcional |
+| `WHATSAPP_NUMBER` | Número de WhatsApp del negocio (no es secreto) | `528700000000` | Sí |
+
+#### 7.2. Variables del frontend
+
+En Vite, solo las variables con prefijo `VITE_` llegan al navegador, por lo que **nunca** deben contener secretos.
+
+| Variable | Qué controla | Ejemplo |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | URL de la API que consume Vue | `http://localhost:3000/api` |
+| `VITE_STRIPE_PUBLIC_KEY` | Llave pública de Stripe, solo `pk_test_` | `pk_test_xxxxxxxx` |
+
+#### 7.3. Responsables y ubicación de cada credencial
+
+| Credencial | Variables | Dónde vive | Responsable |
+| --- | --- | --- | --- |
+| Conexión a PostgreSQL | `DB_*` | `.env` local / variables del servidor | Sergio Ortiz |
+| Firma de sesiones (JWT) | `JWT_SECRET`, `JWT_EXPIRES_IN` | `.env` local / variables del servidor | Sergio Ortiz |
+| Stripe en modo prueba | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | `.env` local / GitHub Secrets | Luis Astorga |
+| Servicio de correo | `MAIL_*` | `.env` local / variables del servidor | Ariel Ruacho |
+| Despliegue | Tokens del proveedor de alojamiento | GitHub Secrets | Yuridia Reyes y Ariel Ruacho |
+
+#### 7.4. Contenido de .env.example
+
+```dotenv
+# copia este archivo como .env y pon tus valores, el .env no se sube
+
+# --- servidor ---
+PORT=3000
+NODE_ENV=development
+APP_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:5173
+
+# --- base de datos (postgres local) ---
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=floreria
+DB_PASSWORD=cambiar_esto
+DB_NAME=floreria_dev
+DB_SYNCHRONIZE=false
+
+# --- sesiones (la expiracion es por el RNF-SEG-04) ---
+JWT_SECRET=pon_aqui_una_cadena_larga_y_aleatoria
+JWT_EXPIRES_IN=2h
+
+# --- stripe, SOLO llaves de prueba (sk_test_), nada de live ---
+STRIPE_SECRET_KEY=sk_test_xxxxxxxxxxxxxxxx
+STRIPE_WEBHOOK_SECRET=whsec_xxxxxxxxxxxxxxxx
+
+# --- correo para confirmacion de pedidos ---
+MAIL_HOST=smtp.ejemplo.com
+MAIL_PORT=587
+MAIL_USER=usuario
+MAIL_PASSWORD=cambiar_esto
+MAIL_FROM=soporte@ejemplo.com
+
+# --- whatsapp del negocio (no es secreto, pero cambia por entorno) ---
+WHATSAPP_NUMBER=528700000000
+```
+
+El frontend tiene su propio `.env.example` con `VITE_API_BASE_URL` y `VITE_STRIPE_PUBLIC_KEY`.
+
+#### 7.5. Reglas para el equipo
+
+- Solo se usan llaves de prueba de Stripe (`sk_test_`); no se generan llaves *live*, porque el proyecto no contempla compras reales.
+
+- En el frontend solo van las llaves públicas (`pk_test_`); la secreta se usa únicamente desde el backend.
+
+- Las credenciales se comparten entre integrantes por un canal privado, nunca en Issues, Pull Requests, commits ni capturas de pantalla.
+
+- Cada entorno tiene sus propios valores; no se reutiliza la contraseña de la base de datos de un entorno en otro.
+
+- En GitHub se activan **Secret scanning** y **Push protection** (Settings → Code security), que bloquean un push si detectan una llave.
+
+- Si una credencial llega a subirse, se revoca y se genera una nueva de inmediato; borrar el commit no basta porque el repositorio es público.
+
+- Las contraseñas de los usuarios de la plataforma se guardan con hash (bcrypt), nunca en texto plano (RNF-SEG-01).
+
+### 8. Archivos de configuración del proyecto
+
+| Archivo | Ubicación | Propósito |
+| --- | --- | --- |
+| `.gitignore` | Raíz | Evita versionar secretos, dependencias, compilados y datos locales |
+| `.env.example` | Raíz del backend y del frontend | Plantilla con las variables requeridas, sin valores reales |
+| `package.json` y `package-lock.json` | Raíz de cada módulo | Dependencias y scripts (`build`, `start`, `test`); el lock garantiza las mismas versiones para todos |
+| `nest-cli.json` | Raíz del backend | Configuración de compilación de NestJS |
+| `tsconfig.json` | Raíz de backend y frontend | Parámetros del compilador de TypeScript |
+| `vite.config.ts` | Raíz del frontend | Configuración de Vite: alias de rutas, plugin de Vue y proxy de desarrollo |
+| `docker-compose.yml` (opcional) | Raíz | Levanta PostgreSQL en contenedor para tener el mismo entorno en todos los equipos |
+
+### 9. Procedimiento para levantar el entorno desde cero
+
+1. **Clonar el repositorio:**
+
+   ```bash
+   git clone https://github.com/jruachomartinez-design/Back-end_Floreria.git
+   cd Back-end_Floreria
+   ```
+
+2. **Configurar variables de entorno:** copiar `.env.example` a `.env` y asignar los valores del entorno. En el frontend, hacer lo mismo con su propio `.env.example`.
+
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Instalar dependencias** (con `npm ci` se respetan las versiones del `package-lock.json`):
+
+   ```bash
+   npm ci
+   ```
+
+4. **Iniciar PostgreSQL**, de forma local o en contenedor, y crear la base de datos indicada en `DB_NAME`. Con Docker:
+
+   ```bash
+   docker compose up -d
+   ```
+
+5. **Ejecutar migraciones y cargar los datos iniciales de prueba** (categorías, productos, usuario administrador y clientes de demostración), según los scripts definidos en `package.json`:
+
+   ```bash
+   npm run migration:run
+   npm run seed:run
+   ```
+
+6. **Arrancar en modo desarrollo:** el backend en `http://localhost:3000` y el frontend en `http://localhost:5173`:
+
+   ```bash
+   npm run start:dev
+   npm run dev
+   ```
+
+### 10. Verificación rápida del entorno
+
+| Qué se verifica | Comando | Resultado esperado |
+| --- | --- | --- |
+| Versión de Node.js | `node -v` | v20.x.x o superior |
+| Versión de npm | `npm -v` | v10.x o superior |
+| Estado de Git | `git status` | Rama correcta y ningún archivo `.env` sin ignorar |
+| Contenedores (si se usa Docker) | `docker ps` | PostgreSQL en estado *Up*, puerto 5432 |
+| Pruebas automatizadas | `npm run test` | Las pruebas de las funcionalidades críticas pasan |
+
+Después del despliegue se repite la verificación en el entorno publicado: autenticación, catálogo, carrito, compra de prueba con Stripe y panel administrativo deben funcionar sin depender del entorno local.
+
