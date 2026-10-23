@@ -4868,9 +4868,9 @@ El líder técnico o Scrum Master asignado generará una etiqueta semántica (ej
 
 ## Diagramas
 
-Mer: (aquí pondré la ruta)
+Mer: Diagramas/MER-Zantedeschia.pdf
 
-Diagramas de casos de uso y secuencia: (aquí pondré la ruta)
+Diagramas de casos de uso y secuencia: Diagramas/Diagramas casos de uso:secuencia.pdf
 
 ## Diccionario de datos - Florería Zantedeschia
 
