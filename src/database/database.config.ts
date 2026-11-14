@@ -20,12 +20,6 @@ export function getDatabaseOptions(): PostgresDataSourceOptions {
     };
   }
 
-  console.log('SSL CONFIG:', {
-    sslEnabled,
-    ssl,
-    caLoaded: typeof ssl === 'object' && Boolean(ssl.ca),
-  });
-
   return {
     type: 'postgres',
     host: process.env.DB_HOST,
