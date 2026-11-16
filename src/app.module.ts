@@ -25,23 +25,14 @@ import { OrderItemsModule } from './order_items/order_items.module';
       imports: [ConfigModule],
       useFactory: () => getDatabaseOptions(),
     }),
-
     RolesModule,
-
     UsersModule,
-
     AddressesModule,
-
     CustomerAddressesModule,
-
     CategoriesModule,
-
     ProductsModule,
-
     ProductFavoritesModule,
-
     OrdersModule,
-
     OrderItemsModule,
   ],
 })

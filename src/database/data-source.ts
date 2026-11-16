@@ -1,8 +1,11 @@
-import 'dotenv/config';
-
+import { config as loadEnv } from 'dotenv';
 import { DataSource } from 'typeorm';
+
 import { getDatabaseOptions } from './database.config';
 
-const AppDataSource = new DataSource(getDatabaseOptions());
+loadEnv({
+  path: '.env',
+  override: true,
+});
 
-export default AppDataSource;
+export default new DataSource(getDatabaseOptions());

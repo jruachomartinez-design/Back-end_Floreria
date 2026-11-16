@@ -29,6 +29,8 @@ export function getDatabaseOptions(): PostgresDataSourceOptions {
     database: process.env.DB_NAME,
     ssl,
 
+    connectTimeoutMS: 5000,
+
     entities: [join(__dirname, '..', '**', '*.entity{.ts,.js}')],
 
     migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
