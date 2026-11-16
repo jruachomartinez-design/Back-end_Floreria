@@ -1,30 +1,57 @@
 import {
   Entity,
   PrimaryGeneratedColumn,
+  Column,
   JoinColumn,
   ManyToOne,
+  Index,
+  Unique,
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
 import { User } from '../../users/entities/user.entity';
 import { Product } from '../../products/entities/product.entity';
 
 @Entity('product_favorites')
+@Unique('uq_product_favorites_pair', ['userId', 'productId'])
+@Index('idx_product_favorites_product_id', ['productId'])
 export class ProductFavorite {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('identity', {
+    generatedIdentity: 'ALWAYS',
+    primaryKeyConstraintName: 'product_favorites_pkey',
+  })
+  id!: number;
 
-  @ManyToOne(() => User, (user) => user.product_favorites)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+  @Column({ name: 'user_id', type: 'integer' })
+  userId!: number;
 
-  @ManyToOne(() => Product, (product) => product.product_favorites)
-  @JoinColumn({ name: 'product_id' })
-  product: Product;
+  @Column({ name: 'product_id', type: 'integer' })
+  productId!: number;
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @ManyToOne(() => User, (user) => user.product_favorites, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({
+    name: 'user_id',
+    foreignKeyConstraintName: 'fk_product_favorites_user',
+  })
+  user!: User;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  @ManyToOne(() => Product, (product) => product.product_favorites, {
+    nullable: false,
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({
+    name: 'product_id',
+    foreignKeyConstraintName: 'fk_product_favorites_product',
+  })
+  product!: Product;
+
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt!: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt!: Date;
 }

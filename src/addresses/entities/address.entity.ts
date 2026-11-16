@@ -6,31 +6,38 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
 import { CustomerAddress } from '../../customer_addresses/entities/customer_address.entity';
 
 @Entity('addresses')
 export class Address {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('identity', {
+    generatedIdentity: 'ALWAYS',
+    primaryKeyConstraintName: 'addresses_pkey',
+  })
+  id!: number;
 
   @Column({ type: 'varchar', length: 100 })
-  street: string;
+  street!: string;
 
   @Column({ type: 'varchar', length: 10 })
-  number: string;
+  number!: string;
 
   @Column({ type: 'varchar', length: 80 })
-  neighborhood: string;
+  neighborhood!: string;
 
   @Column({ type: 'varchar', length: 60 })
-  city: string;
+  city!: string;
 
-  @OneToMany(() => CustomerAddress, (customerAddress) => customerAddress.user)
-  customer_addresses: CustomerAddress[];
+  @OneToMany(
+    () => CustomerAddress,
+    (customerAddress) => customerAddress.address,
+  )
+  customer_addresses!: CustomerAddress[];
 
-  @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
+  createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
-  updatedAt: Date;
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
+  updatedAt!: Date;
 }
