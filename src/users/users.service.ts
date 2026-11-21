@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -19,7 +21,7 @@ export class UsersService {
   ) {}
 
   create(createUserDto: CreateUserDto) {
-    return this.register(createUserDto);
+    return this.register(createUserDto).then((user) => this.toResponse(user));
   }
 
   async register(dto: CreateUserDto): Promise<User> {
@@ -33,8 +35,9 @@ export class UsersService {
 
     const user = this.users.create({
       roleId: role.id,
-      first_name: dto.first_name.trim(),
-      last_name: dto.last_name.trim(),
+      role,
+      first_name: this.requiredText(dto.first_name, 'first_name'),
+      last_name: this.requiredText(dto.last_name, 'last_name'),
       second_last_name: dto.second_last_name?.trim() || null,
       email,
       phone: dto.phone?.trim() || null,
@@ -44,7 +47,7 @@ export class UsersService {
     try {
       return await this.users.save(user);
     } catch (error) {
-      if ((error as { code?: string }).code === '23505') {
+      if (this.databaseErrorCode(error) === '23505') {
         throw new ConflictException('Email is already registered');
       }
       throw error;
@@ -65,19 +68,115 @@ export class UsersService {
     });
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    const users = await this.users.find({
+      relations: { role: true },
+      order: { id: 'ASC' },
+    });
+    return users.map((user) => this.toResponse(user));
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    const user = await this.users.findOne({
+      where: { id },
+      relations: { role: true },
+    });
+    if (!user) throw new NotFoundException(`User ${id} was not found`);
+    return this.toResponse(user);
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, dto: UpdateUserDto) {
+    if (!Object.values(dto).some((value) => value !== undefined)) {
+      throw new BadRequestException('At least one field must be provided');
+    }
+
+    const user = await this.users.findOne({
+      where: { id },
+      relations: { role: true },
+    });
+    if (!user) throw new NotFoundException(`User ${id} was not found`);
+
+    if (dto.first_name !== undefined) {
+      user.first_name = this.requiredText(dto.first_name, 'first_name');
+    }
+    if (dto.last_name !== undefined) {
+      user.last_name = this.requiredText(dto.last_name, 'last_name');
+    }
+    if (dto.second_last_name !== undefined) {
+      user.second_last_name = dto.second_last_name?.trim() || null;
+    }
+    if (dto.email !== undefined) {
+      const email = dto.email.trim().toLowerCase();
+      const existing = await this.users.findOne({ where: { email } });
+      if (existing && existing.id !== id) {
+        throw new ConflictException('Email is already registered');
+      }
+      user.email = email;
+    }
+    if (dto.phone !== undefined) {
+      user.phone = dto.phone?.trim() || null;
+    }
+    if (dto.password !== undefined) {
+      user.password_hash = await hash(dto.password, 12);
+    }
+
+    try {
+      return this.toResponse(await this.users.save(user));
+    } catch (error) {
+      if (this.databaseErrorCode(error) === '23505') {
+        throw new ConflictException('Email is already registered');
+      }
+      throw error;
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const user = await this.users.findOne({ where: { id } });
+    if (!user) throw new NotFoundException(`User ${id} was not found`);
+
+    try {
+      await this.users.remove(user);
+    } catch (error) {
+      if (this.databaseErrorCode(error) === '23503') {
+        throw new ConflictException(
+          'User cannot be deleted because it has related records',
+        );
+      }
+      throw error;
+    }
+
+    return { id, deleted: true };
+  }
+
+  private requiredText(value: unknown, field: string): string {
+    if (typeof value !== 'string') {
+      throw new BadRequestException(`${field} must be a string`);
+    }
+    const trimmed = value.trim();
+    if (!trimmed) throw new BadRequestException(`${field} cannot be empty`);
+    return trimmed;
+  }
+
+  private databaseErrorCode(error: unknown): string | undefined {
+    if (typeof error !== 'object' || error === null) return undefined;
+    const databaseError = error as {
+      code?: string;
+      driverError?: { code?: string };
+    };
+    return databaseError.code ?? databaseError.driverError?.code;
+  }
+
+  private toResponse(user: User) {
+    return {
+      id: user.id,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      second_last_name: user.second_last_name,
+      email: user.email,
+      phone: user.phone,
+      role: user.role?.name,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
   }
 }
