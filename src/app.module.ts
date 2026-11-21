@@ -21,7 +21,6 @@ import { AppService } from './app.service';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
-      override: true,
     }),
 
     TypeOrmModule.forRootAsync({
