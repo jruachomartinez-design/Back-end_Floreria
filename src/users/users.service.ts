@@ -51,6 +51,20 @@ export class UsersService {
     }
   }
 
+  findByEmailWithRole(email: string): Promise<User | null> {
+    return this.users.findOne({
+      where: { email: email.trim().toLowerCase() },
+      relations: { role: true },
+    });
+  }
+
+  findByIdWithRole(id: number): Promise<User | null> {
+    return this.users.findOne({
+      where: { id },
+      relations: { role: true },
+    });
+  }
+
   findAll() {
     return `This action returns all users`;
   }
