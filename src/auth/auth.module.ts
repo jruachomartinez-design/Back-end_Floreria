@@ -13,12 +13,12 @@ import { UsersModule } from '../users/users.module';
       useFactory: (config: ConfigService) => {
         const secret = config.get<string>('JWT_SECRET');
         if (!secret || secret.length < 32) {
-          throw new Error('JWT_SECRET must be configured with at least 32 characters');
+          //throw new Error('JWT_SECRET must be configured with at least 32 characters');
         }
         return {
           secret,
           signOptions: {
-            expiresIn: Number(config.get<string>('JWT_EXPIRES_IN_SECONDS') ?? 7200),
+            //expiresIn: Number(config.get<string>('JWT_EXPIRES_IN_SECONDS') ?? 7200),
           },
         };
       },

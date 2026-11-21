@@ -13,6 +13,8 @@ import { ProductFavoritesModule } from './product_favorites/product_favorites.mo
 import { OrdersModule } from './orders/orders.module';
 import { OrderItemsModule } from './order_items/order_items.module';
 import { AuthModule } from './auth/auth.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -37,5 +39,7 @@ import { AuthModule } from './auth/auth.module';
     OrderItemsModule,
     AuthModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
