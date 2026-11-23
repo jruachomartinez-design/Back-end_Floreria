@@ -1,0 +1,10 @@
+@import './base.css';
+
+/* estilos generales de las vistas, cada quien agrega los suyos en su componente */
+.vista h1 {
+  margin-bottom: 1rem;
+}
+.pendiente {
+  opacity: 0.6;
+  font-style: italic;
+}
