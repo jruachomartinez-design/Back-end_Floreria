@@ -29,7 +29,23 @@ src/
 
 ## Reparto de vistas
 
-**Joan — flujo de compra del cliente**
+**Joan — login, registro y administración**
+
+| Vista | Ruta | Issue |
+| --- | --- | --- |
+| Inicio de sesión | `/iniciar-sesion` | #27 |
+| Registro | `/registro` | #27 |
+| Restablecer contraseña | `/restablecer-contrasena` | #27 |
+| Login del administrador | `/admin/iniciar-sesion` | #27 / #30 |
+| Layout del admin | — | #30 |
+| Panel general | `/admin` | #30 |
+| Inventario de flores | `/admin/productos` | #30 |
+| Categorías | `/admin/categorias` | #30 |
+| Clientes | `/admin/clientes` | #30 |
+| Pedidos | `/admin/pedidos` | #31 |
+| Detalle de pedido | `/admin/pedidos/:id` | #31 |
+
+**Yuri — vistas del cliente**
 
 | Vista | Ruta | Issue |
 | --- | --- | --- |
@@ -40,27 +56,14 @@ src/
 | Detalle de producto | `/flores/:id` | #26 |
 | Favoritos | `/favoritos` | #26 |
 | Carrito | `/carrito` | #28 |
-| Detalles de entrega (direcciones) | `/compra/entrega` | #29 |
+| Dirección de entrega | `/compra/entrega` | #29 |
 | Método de pago (Stripe) | `/compra/pago` | #29 |
 | Confirmación de pedido | `/compra/confirmacion/:folio` | #29 |
 | Mis pedidos | `/pedidos` | #31 |
-
-**Yuri — cuentas y administración**
-
-| Vista | Ruta | Issue |
-| --- | --- | --- |
-| Registro | `/registro` | #27 |
-| Inicio de sesión | `/iniciar-sesion` | #27 |
-| Restablecer contraseña | `/restablecer-contrasena` | #27 |
 | Mi perfil | `/perfil` | #27 |
-| Login del administrador | `/admin/iniciar-sesion` | #27 / #30 |
-| Layout del admin | — | #30 |
-| Panel general | `/admin` | #30 |
-| Inventario de flores | `/admin/productos` | #30 |
-| Categorías | `/admin/categorias` | #30 |
-| Clientes | `/admin/clientes` | #30 |
-| Pedidos | `/admin/pedidos` | #31 |
-| Detalle de pedido | `/admin/pedidos/:id` | #31 |
+
+Cada vista ya tiene su estructura armada según el Figma (formularios, tablas y tarjetas), con datos vacíos y `TODO` donde falta conectar con el back.
+El diseño está en el link de Figma del README principal (páginas "Cliente" y "Administrador").
 
 Las issues #32 (diseño adaptable) y #33 (validaciones y mensajes) las hace cada quien en sus propias vistas.
 

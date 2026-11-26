@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-// Store del carrito — Joan, issue #28
+// Store del carrito — Yuri, issue #28
 // De momento vive solo en el front, luego vemos si se guarda en el back
 export const useCarritoStore = defineStore('carrito', () => {
-  const productos = ref([]) // { id, nombre, precio, cantidad }
+  const productos = ref([]) // { id, name, price, cantidad } (los mismos nombres que regresa el back)
 
   const totalPiezas = computed(() => productos.value.reduce((suma, p) => suma + p.cantidad, 0))
-  const total = computed(() => productos.value.reduce((suma, p) => suma + p.precio * p.cantidad, 0))
+  const total = computed(() => productos.value.reduce((suma, p) => suma + p.price * p.cantidad, 0))
 
   function agregar(producto, cantidad = 1) {
     const yaEsta = productos.value.find((p) => p.id === producto.id)

@@ -1,5 +1,5 @@
 <script setup>
-// Layout del cliente — lo armo yo (Joan), issue #25
+// Layout del cliente — le toca a Yuri, issue #25
 // Header con Inicio, Flores, Nosotros, Pedidos, Favoritos + carrito con contador + cuenta
 import { useCarritoStore } from '@/stores/carrito'
 import { useAuthStore } from '@/stores/auth'

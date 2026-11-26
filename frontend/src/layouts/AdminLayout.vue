@@ -1,5 +1,5 @@
 <script setup>
-// Layout del admin con el menú lateral — le toca a Yuri, issue #30
+// Layout del admin con el menú lateral — le toca a Joan, issue #30
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -46,7 +46,7 @@ function salir() {
 .contenido {
   padding: 2rem;
 }
-/* en celular el menú se pone arriba, Yuri luego lo ajusta en el #32 */
+/* en celular el menú se pone arriba, Joan luego lo ajusta en el #32 */
 @media (max-width: 768px) {
   .admin {
     grid-template-columns: 1fr;

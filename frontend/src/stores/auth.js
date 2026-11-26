@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-// Store de la sesión — Yuri
+// Store de la sesión — Joan
 // Por ahora solo guarda el token y el usuario en localStorage,
 // falta conectarlo con el endpoint de login del back (issues #18 a #20)
 export const useAuthStore = defineStore('auth', () => {

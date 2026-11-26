@@ -11,7 +11,7 @@ const routes = [
     path: '/',
     component: ClienteLayout,
     children: [
-      // ---------- Joan ----------
+      // ---------- Yuri (vistas del cliente) ----------
       { path: '', name: 'inicio', component: () => import('@/views/cliente/InicioView.vue') },
       {
         path: 'nosotros',
@@ -61,7 +61,7 @@ const routes = [
         meta: { requiereAuth: true },
       },
 
-      // ---------- Yuri ----------
+      // ---------- Joan (login y registro) ----------
       {
         path: 'registro',
         name: 'registro',
@@ -78,6 +78,7 @@ const routes = [
         component: () => import('@/views/cuenta/RestablecerContrasenaView.vue'),
       },
       {
+        // el perfil lo hace Yuri, en el figma viene con las del cliente
         path: 'perfil',
         name: 'perfil',
         component: () => import('@/views/cuenta/PerfilView.vue'),
@@ -86,7 +87,7 @@ const routes = [
     ],
   },
 
-  // ---------- Yuri (panel de admin) ----------
+  // ---------- Joan (panel de admin) ----------
   // el login del admin va aparte porque no lleva el menú lateral
   {
     path: '/admin/iniciar-sesion',
@@ -144,7 +145,7 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 }),
 })
 
-// Guard sencillo, cuando ya funcione el login del back hay que revisarlo (Yuri)
+// Guard sencillo, cuando ya funcione el login del back hay que revisarlo (Joan)
 router.beforeEach((to) => {
   const auth = useAuthStore()
 
