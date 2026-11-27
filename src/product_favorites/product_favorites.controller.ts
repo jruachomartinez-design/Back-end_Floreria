@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
 import { ProductFavoritesService } from './product_favorites.service';
 import { CreateProductFavoriteDto } from './dto/create-product_favorite.dto';
 import { UpdateProductFavoriteDto } from './dto/update-product_favorite.dto';
@@ -18,17 +18,18 @@ export class ProductFavoritesController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseIntPipe) id: string) {
     return this.productFavoritesService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateProductFavoriteDto: UpdateProductFavoriteDto) {
+  update(@Param('id', ParseIntPipe) id: string, @Body() updateProductFavoriteDto: UpdateProductFavoriteDto) {
     return this.productFavoritesService.update(+id, updateProductFavoriteDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  @HttpCode(HttpStatus.NO_CONTENT)
+  remove(@Param('id', ParseIntPipe) id: string) {
     return this.productFavoritesService.remove(+id);
   }
 }
